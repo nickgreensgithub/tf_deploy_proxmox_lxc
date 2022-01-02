@@ -92,7 +92,7 @@ module "create_ansible_user"{
     source= "github.com/nickgreensgithub/tf_module_create_remote_user"
 
     connection = {
-            ip = proxmox_lxc.server[count.index].network.0.fixed_ip_v4
+            ip = proxmox_lxc.server[count.index].network.0.ip
             user= var.vm_connection_details.user
             private_key = var.vm_connection_details.priv
     }
