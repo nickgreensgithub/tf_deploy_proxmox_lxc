@@ -39,7 +39,7 @@ provider "proxmox" {
 }
 
 resource "proxmox_lxc" "server"  {
-    count             = var.vm_count
+    count             = 1 #var.vm_count
     cores             = var.cores
     memory            = var.ram
     target_node       = var.proxmox_host.target_node
@@ -88,11 +88,11 @@ resource "proxmox_lxc" "server"  {
 
 module "create_ansible_user"{
     depends_on = [ proxmox_lxc.server]
-    count      = length( proxmox_lxc.server)
+    #count      = length( proxmox_lxc.server)
     source= "github.com/nickgreensgithub/tf_module_create_remote_user"
 
     connection = {
-            ip = proxmox_lxc.server[count.index].network.0.ip
+            ip = var.ip
             user= var.vm_connection_details.user
             private_key = var.vm_connection_details.priv
     }
