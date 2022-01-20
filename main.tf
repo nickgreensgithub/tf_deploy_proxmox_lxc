@@ -27,9 +27,9 @@ variable "vm_connection_details"{
     type = map
 }
 
-variable "create_user"{ 
-    type = map
-}
+# variable "create_user"{ 
+#     type = map
+# }
 
 provider "proxmox" {
     pm_password = var.proxmox_host["pm_password"]
