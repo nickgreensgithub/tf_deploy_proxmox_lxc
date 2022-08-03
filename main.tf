@@ -9,15 +9,28 @@ terraform {
 
 variable "ram"{}
 variable "storage_size"{}
-variable "ip"{type=string}
-variable "gateway_ip"{type=string}
-variable "ip_mask"{type=string}
+variable "ip"{
+	type=string
+	default = "dhcp"
+}
+variable "gateway_ip"{
+	type=string
+	default = ""
+}
+variable "ip_mask"{
+	type=string
+	default = ""
+}
 variable "cores"{}
 variable "vm_count"{}
 variable "vm_name"{}
 variable "os_template"{}
 variable "os_type"{}
 variable "password"{}
+variable "filesystem_for_disk"{
+	type=string
+	default = "local-lvm"
+}
 #variable "ANSIBLE"{ type=map}#environment variable
 #variable "TERRAFORM_USER"{ type=map}#environment variable
 variable "proxmox_host"{ type=map}
@@ -53,13 +66,13 @@ resource "proxmox_lxc" "server"  {
     startup = "order=1,up=5" # order is priority, up is how long to wait before startingthe next container
     #TODO add startup order variable: startup = ....
     ssh_public_keys = <<-EOT
-        ${file(var.vm_connection_details.pub)}
+        ${var.vm_connection_details.pub}
     EOT
 
 
     // Terraform will crash without rootfs defined
     rootfs {
-        storage = "local-lvm"
+        storage = var.filesystem_for_disk
         size    = var.storage_size
     }
 
@@ -80,7 +93,7 @@ resource "proxmox_lxc" "server"  {
     connection {
         host = var.ip        
         user = "${ var.vm_connection_details.user }"
-        private_key = file(var.vm_connection_details.priv)
+        private_key = "${var.vm_connection_details.priv}"
         agent = false
         timeout = "5m"
     } 
