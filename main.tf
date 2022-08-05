@@ -99,23 +99,60 @@ resource "proxmox_lxc" "server"  {
     } 
 }
 
-module "create_ansible_user"{
-    depends_on = [ proxmox_lxc.server]
-    #count      = length( proxmox_lxc.server)
-    source= "github.com/nickgreensgithub/tf_module_create_remote_user"
-
-    connection = {
-            ip = var.ip
-            user= var.vm_connection_details.user
-            private_key = var.vm_connection_details.priv
-    }
-    user = {
-            name = "${ var.create_user.user }"
-            is_sudo = true
-            public_ssh="${ var.create_user.pub }"
-    }
+output "vm_id" {
+    value = proxmox_lxc.server[0].vmid
 }
+#Will fail for DHCP vms, probabnly move this to be a separate thing
+# module "create_ansible_user"{
+#     depends_on = [ proxmox_lxc.server]
+#     #count      = length( proxmox_lxc.server)
+#     source= "github.com/nickgreensgithub/tf_module_create_remote_user"
 
+#     connection = {
+#             ip = var.ip
+#             user= var.vm_connection_details.user
+#             private_key = var.vm_connection_details.priv
+#     }
+#     user = {
+#             name = "${ var.create_user.user }"
+#             is_sudo = true
+#             public_ssh="${ var.create_user.pub }"
+#     }
+# }
+
+
+# resource "null_resource" "create_new_remote_user" {
+#     //remote exec required to delay running of local-exec provisioner below until machine is available
+#     provisioner "remote-exec" {
+#         connection {
+#             host = var.ip        
+#             user = "${ var.vm_connection_details.user }"
+#             private_key = file(var.vm_connection_details.priv)
+#             agent = false
+#             timeout = "5m"
+#         } 
+#         inline = ["echo 'connected!'"]
+#     }
+#     //making an ansible user and setting its ssh key
+#     #TODO pass variables to playbook for user to create
+
+
+# }
+
+# connection {
+#         host = var.ip        
+#         user = "${ var.vm_connection_details.user }"
+#         private_key = file(var.vm_connection_details.priv)
+#         agent = false
+#         timeout = "5m"
+#     } 
+
+
+#     provisioner "local-exec" {
+#         command = "ansible-playbook -i ${var.connection.ip}, ${path.module}/ansible_create_user/main.yml --private-key ${var.connection.private_key} --user ${var.connection.user}"
+#         //TODO can this be a relative path?
+#     }    
+# }
 
 
 # resource "null_resource" "further_configuration" {
